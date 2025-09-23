@@ -1,0 +1,45 @@
+import md5 from "md5";
+import { getManager } from "typeorm";
+import Usuário, { Status } from "../entidades/usuário";
+import EditorJornal from '../entidades/editor-jornal';
+import ServiçosUsuário from "./serviços-usuário";
+
+export default class ServiçosEditorJornal {
+  constructor() {}
+
+  static async cadastrarEditorJornal(request, response) {
+    try {
+      const { usuário_info, abrangência, telefone } = request.body;
+      const { usuário, token } = await ServiçosUsuário.cadastrarUsuário(usuário_info);
+      const entityManager = getManager();
+      await entityManager.transaction(async (transactionManager) => {
+        await transactionManager.save(usuário);
+        const editor = EditorJornal.create({ usuário, abrangência, telefone});
+        await transactionManager.save(editor);
+        await transactionManager.update(Usuário, usuário.cpf, { status: Status.ATIVO });
+        return response.json({ status: Status.ATIVO, token });
+      });
+    } catch (error) { return response.status(500).json({ erro: error }); }
+  };
+
+  static async atualizarEditorJornal(request, response) {
+    try {
+      const { cpf, telefone, abrangência } = request.body;
+      const cpf_encriptado = md5(cpf);
+      await EditorJornal.update({ usuário: { cpf: cpf_encriptado } }, { telefone, abrangência });
+      return response.json();
+    } catch (error) { return response.status(500).json({ erro: "Erro BD atualizarEditorJornal" }); }
+  };
+
+  static async buscarEditorJornal(request, response) {
+    try {
+      const cpf_encriptado = md5(request.params.cpf);
+      const editor = await EditorJornal.findOne({ where: { usuário: cpf_encriptado }, relations: ["usuário"] });
+      if (!editor) return response.status(404).json({ erro: "Editor não encontrado." });
+      return response.json({
+        nome: editor.usuário.nome, email: editor.usuário.email,
+        telefone: editor.telefone, abrangência: editor.abrangência
+      });
+    } catch (error) { return response.status(500).json({ erro: "Erro BD buscarEditorJornal" }); }
+  };
+};
