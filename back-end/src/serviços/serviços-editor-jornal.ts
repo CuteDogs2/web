@@ -1,18 +1,11 @@
-import crypto from "crypto";
 import { getManager } from "typeorm";
 import Usuário, { Status } from "../entidades/usuário";
 import EditorJornal from '../entidades/editor-jornal';
 import ServiçosUsuário from "./serviços-usuário";
 import { ERROR_MESSAGES } from "../constantes/mensagens-erro";
+import { encriptarCpf } from "../utils/crypto";
 
 export default class ServiçosEditorJornal {
-  
-  /**
-   * Encripta CPF usando SHA-256
-   */
-  private static encriptarCpf(cpf: string): string {
-    return crypto.createHash('sha256').update(cpf).digest('hex');
-  }
 
   static async cadastrarEditorJornal(request, response) {
     try {
@@ -35,7 +28,7 @@ export default class ServiçosEditorJornal {
   static async atualizarEditorJornal(request, response) {
     try {
       const { cpf, telefone, abrangência } = request.body;
-      const cpf_encriptado = ServiçosEditorJornal.encriptarCpf(cpf);
+      const cpf_encriptado = encriptarCpf(cpf);
       
       await EditorJornal.update(
         { usuário: { cpf: cpf_encriptado } }, 
@@ -50,7 +43,7 @@ export default class ServiçosEditorJornal {
 
   static async buscarEditorJornal(request, response) {
     try {
-      const cpf_encriptado = ServiçosEditorJornal.encriptarCpf(request.params.cpf);
+      const cpf_encriptado = encriptarCpf(request.params.cpf);
       const editor = await EditorJornal.findOne({ 
         where: { usuário: cpf_encriptado }, 
         relations: ["usuário"] 

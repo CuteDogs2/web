@@ -1,13 +1,6 @@
-import crypto from "crypto";
 import Usuário from "../entidades/usuário";
 import { ERROR_MESSAGES } from "../constantes/mensagens-erro";
-
-/**
- * Encripta CPF usando SHA-256
- */
-function encriptarCpf(cpf: string): string {
-  return crypto.createHash('sha256').update(cpf).digest('hex');
-}
+import { encriptarCpf } from "../utils/crypto";
 
 export default async function verificarErroConteudoToken(request, response, next) {
   try {
@@ -25,6 +18,6 @@ export default async function verificarErroConteudoToken(request, response, next
     
     next();
   } catch (error) {
-    return response.status(500).json({ erro: ERROR_MESSAGES.ACESSO_NAO_AUTORIZADO });
+    return response.status(500).json({ erro: ERROR_MESSAGES.ERRO_INTERNO_SERVIDOR });
   }
 }

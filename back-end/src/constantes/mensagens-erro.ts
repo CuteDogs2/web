@@ -11,7 +11,7 @@ export const ERROR_MESSAGES = {
   
   // Usuários
   CPF_JA_CADASTRADO: "CPF já cadastrado.",
-  CPF_NAO_CADASTRADO: "CPF não cadastrado",
+  CPF_NAO_CADASTRADO: "CPF não cadastrado.",
   USUARIO_NAO_CADASTRADO: "Nome de usuário não cadastrado.",
   USUARIO_NAO_ENCONTRADO: "Usuário não encontrado.",
   SENHA_INCORRETA: "Senha incorreta.",
@@ -23,5 +23,6 @@ export const ERROR_MESSAGES = {
   EDITOR_NAO_ENCONTRADO: "Editor não encontrado.",
   
   // Banco de dados
-  DB_ERROR_PREFIX: "Erro BD: "
+  DB_ERROR_PREFIX: "Erro BD: ",
+  ERRO_INTERNO_SERVIDOR: "Erro interno do servidor."
 };

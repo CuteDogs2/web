@@ -1,18 +1,11 @@
-import crypto from "crypto";
 import { getManager } from "typeorm";
 import Usuário, { Status } from "../entidades/usuário";
 import Jornalista from "../entidades/jornalista";
 import ServiçosUsuário from "./serviços-usuário";
 import { ERROR_MESSAGES } from "../constantes/mensagens-erro";
+import { encriptarCpf } from "../utils/crypto";
 
 export default class ServiçosJornalista {
-  
-  /**
-   * Encripta CPF usando SHA-256
-   */
-  private static encriptarCpf(cpf: string): string {
-    return crypto.createHash('sha256').update(cpf).digest('hex');
-  }
   
   static async cadastrarJornalista(request, response) {
     try {
@@ -34,7 +27,7 @@ export default class ServiçosJornalista {
   
   static async buscarJornalista(request, response) {
     try {
-      const cpf_encriptado = ServiçosJornalista.encriptarCpf(request.params.cpf);
+      const cpf_encriptado = encriptarCpf(request.params.cpf);
       const jornalista = await Jornalista.findOne({ 
         where: { usuário: cpf_encriptado },
         relations: ["usuário"] 
@@ -58,7 +51,7 @@ export default class ServiçosJornalista {
   static async atualizarJornalista(request, response) {
     try {
       const { cpf, especialização, anos_experiência } = request.body;
-      const cpf_encriptado = ServiçosJornalista.encriptarCpf(cpf);
+      const cpf_encriptado = encriptarCpf(cpf);
       
       await Jornalista.update(
         { usuário: { cpf: cpf_encriptado } }, 

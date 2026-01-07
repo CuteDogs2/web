@@ -1,5 +1,4 @@
 import bcrypt from "bcrypt";
-import crypto from "crypto";
 import dotenv from 'dotenv';
 import { sign } from "jsonwebtoken";
 import { getManager } from "typeorm";
@@ -7,6 +6,7 @@ import Usuário, { Perfil } from "../entidades/usuário";
 import Jornalista from "../entidades/jornalista";
 import EditorJornal from "../entidades/editor-jornal";
 import { ERROR_MESSAGES } from "../constantes/mensagens-erro";
+import { encriptarCpf } from "../utils/crypto";
 
 dotenv.config();
 
@@ -17,23 +17,16 @@ const TOKEN_EXPIRATION_LOGIN = "1d";
 const TOKEN_EXPIRATION_RECOVERY = "1h";
 
 export default class ServiçosUsuário {
-  
-  /**
-   * Encripta CPF usando SHA-256
-   */
-  private static encriptarCpf(cpf: string): string {
-    return crypto.createHash('sha256').update(cpf).digest('hex');
-  }
   static async verificarCpfExistente(request, response) {
     try {
-      const cpf_encriptado = ServiçosUsuário.encriptarCpf(request.params.cpf);
+      const cpf_encriptado = encriptarCpf(request.params.cpf);
       const usuário = await Usuário.findOne(cpf_encriptado);
       if (usuário) return response.status(404).json({ erro: ERROR_MESSAGES.CPF_JA_CADASTRADO });
       else return response.json();
     } catch (error) {
       return response.status(500).json({ erro: ERROR_MESSAGES.DB_ERROR_PREFIX + "verificarCpfCadastrado" });
     }
-  };
+  }
   static async verificarCadastroCompleto(usuário: Usuário): Promise<boolean> {
     switch(usuário.perfil) {
       case Perfil.JORNALISTA:
@@ -55,7 +48,7 @@ export default class ServiçosUsuário {
   static async logarUsuário(request, response) {
     try {
       const { nome_login, senha } = request.body;
-      const cpf_encriptado = ServiçosUsuário.encriptarCpf(nome_login);
+      const cpf_encriptado = encriptarCpf(nome_login);
       const usuário = await Usuário.findOne(cpf_encriptado);
       
       if (!usuário) {
@@ -97,7 +90,7 @@ export default class ServiçosUsuário {
   static async cadastrarUsuário(usuário_informado) {
     try {
       const { cpf, nome, perfil, email, senha, questão, resposta, cor_tema } = usuário_informado;
-      const cpf_encriptado = ServiçosUsuário.encriptarCpf(cpf);
+      const cpf_encriptado = encriptarCpf(cpf);
       const senha_encriptada = await bcrypt.hash(senha, SALT_ROUNDS);
       const resposta_encriptada = await bcrypt.hash(resposta, SALT_ROUNDS);
       
@@ -126,7 +119,7 @@ export default class ServiçosUsuário {
   static async alterarUsuário(request, response) {
     try {
       const { cpf, senha, questão, resposta, cor_tema, email } = request.body;
-      const cpf_encriptado = ServiçosUsuário.encriptarCpf(cpf);
+      const cpf_encriptado = encriptarCpf(cpf);
       let senha_encriptada: string;
       let resposta_encriptada: string;
       let token: string;
@@ -180,7 +173,7 @@ export default class ServiçosUsuário {
   };
   static async removerUsuário(request, response) {
     try {
-      const cpf_encriptado = ServiçosUsuário.encriptarCpf(request.params.cpf);
+      const cpf_encriptado = encriptarCpf(request.params.cpf);
       const entityManager = getManager();
       
       await entityManager.transaction(async (transactionManager) => {
@@ -195,7 +188,7 @@ export default class ServiçosUsuário {
   };
   static async buscarQuestãoSegurança(request, response) {
     try {
-      const cpf_encriptado = ServiçosUsuário.encriptarCpf(request.params.cpf);
+      const cpf_encriptado = encriptarCpf(request.params.cpf);
       const usuário = await Usuário.findOne(cpf_encriptado);
       
       if (usuário) {
@@ -211,7 +204,7 @@ export default class ServiçosUsuário {
   static async verificarRespostaCorreta(request, response) {
     try {
       const { cpf, resposta } = request.body;
-      const cpf_encriptado = ServiçosUsuário.encriptarCpf(cpf);
+      const cpf_encriptado = encriptarCpf(cpf);
       const usuário = await Usuário.findOne(cpf_encriptado);
       
       const resposta_correta = await bcrypt.compare(resposta, usuário.resposta);
