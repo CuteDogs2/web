@@ -3,12 +3,7 @@ import { getManager } from "typeorm";
 import Usuário, { Status } from "../entidades/usuário";
 import Jornalista from "../entidades/jornalista";
 import ServiçosUsuário from "./serviços-usuário";
-
-// Error messages constants
-const ERROR_MESSAGES = {
-  JORNALISTA_NAO_ENCONTRADO: "Jornalista não encontrado.",
-  DB_ERROR_PREFIX: "Erro BD: "
-};
+import { ERROR_MESSAGES } from "../constantes/mensagens-erro";
 
 export default class ServiçosJornalista {
   

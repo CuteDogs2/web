@@ -1,9 +1,5 @@
 import { Perfil } from '../entidades/usuário';
-
-// Error messages constants
-const ERROR_MESSAGES = {
-  ACESSO_NAO_AUTORIZADO: "Acesso não autorizado."
-};
+import { ERROR_MESSAGES } from "../constantes/mensagens-erro";
 
 export default function verificarPerfilEditor(request, response, next) {
   if (request.perfil === Perfil.EDITOR_JORNAL) {

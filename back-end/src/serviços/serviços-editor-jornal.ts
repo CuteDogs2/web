@@ -3,12 +3,7 @@ import { getManager } from "typeorm";
 import Usuário, { Status } from "../entidades/usuário";
 import EditorJornal from '../entidades/editor-jornal';
 import ServiçosUsuário from "./serviços-usuário";
-
-// Error messages constants
-const ERROR_MESSAGES = {
-  EDITOR_NAO_ENCONTRADO: "Editor não encontrado.",
-  DB_ERROR_PREFIX: "Erro BD: "
-};
+import { ERROR_MESSAGES } from "../constantes/mensagens-erro";
 
 export default class ServiçosEditorJornal {
   

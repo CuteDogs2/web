@@ -1,16 +1,10 @@
 import dotenv from 'dotenv';
 import { JwtPayload, TokenExpiredError, verify } from "jsonwebtoken";
+import { ERROR_MESSAGES } from "../constantes/mensagens-erro";
 
 dotenv.config();
 
 const SENHA_JWT = process.env.SENHA_JWT;
-
-// Error messages constants
-const ERROR_MESSAGES = {
-  TOKEN_NAO_INFORMADO: "Token não informado.",
-  TOKEN_EXPIRADO: "Token expirado, faça login novamente.",
-  TOKEN_INVALIDO: "Token inválido."
-};
 
 export default function verificarToken(request, response, next) {
   const header = request.headers.authorization;

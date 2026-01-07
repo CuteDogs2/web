@@ -6,6 +6,7 @@ import { getManager } from "typeorm";
 import Usuário, { Perfil } from "../entidades/usuário";
 import Jornalista from "../entidades/jornalista";
 import EditorJornal from "../entidades/editor-jornal";
+import { ERROR_MESSAGES } from "../constantes/mensagens-erro";
 
 dotenv.config();
 
@@ -14,17 +15,6 @@ const SALT_ROUNDS = 10;
 const SENHA_JWT = process.env.SENHA_JWT;
 const TOKEN_EXPIRATION_LOGIN = "1d";
 const TOKEN_EXPIRATION_RECOVERY = "1h";
-
-// Error messages
-const ERROR_MESSAGES = {
-  CPF_JA_CADASTRADO: "CPF já cadastrado.",
-  CPF_NAO_CADASTRADO: "CPF não cadastrado",
-  USUARIO_NAO_CADASTRADO: "Nome de usuário não cadastrado.",
-  SENHA_INCORRETA: "Senha incorreta.",
-  RESPOSTA_INCORRETA: "Resposta incorreta.",
-  CADASTRO_INCOMPLETO: "Cadastro incompleto. Por favor, realize o cadastro novamente.",
-  DB_ERROR_PREFIX: "Erro BD: "
-};
 
 export default class ServiçosUsuário {
   
