@@ -1,52 +1,116 @@
 
 import { estilizarErro } from "./estilos";
-const ERRO_CAMPO_OBRIGATÓRIO = "Campo obrigatório não preenchido";
-const ERRO_CONFIRMAÇÃO_SENHA = "Senha não confere";
-const ERRO_FORMATO_INVÁLIDO = "Campo com formato inválido";
-const ERRO_QUESTÃO = "Resposta sem questão";
+
+// Error messages constants
+const ERROR_MESSAGES = {
+  CAMPO_OBRIGATORIO: "Campo obrigatório não preenchido",
+  CONFIRMACAO_SENHA: "Senha não confere",
+  FORMATO_INVALIDO: "Campo com formato inválido",
+  QUESTAO_SEM_RESPOSTA: "Resposta sem questão",
+  CPF_INVALIDO: "CPF inválido"
+};
+
 export function validarCamposObrigatórios(campos) {
   let errosCamposObrigatórios = {};
   for (let nomeCampo in campos) {
-    if (campos[nomeCampo] === "" || campos[nomeCampo] === null)
-      errosCamposObrigatórios[nomeCampo] = ERRO_CAMPO_OBRIGATÓRIO;
+    if (campos[nomeCampo] === "" || campos[nomeCampo] === null) {
+      errosCamposObrigatórios[nomeCampo] = ERROR_MESSAGES.CAMPO_OBRIGATORIO;
+    }
   }
   return errosCamposObrigatórios;
-};
+}
+
 export function validarConfirmaçãoSenha(senha, confirmação_senha) {
-  let errosConfirmaçãoSenhaOpcional = {};
+  let errosConfirmaçãoSenha = {};
   if (senha !== confirmação_senha) {
-    errosConfirmaçãoSenhaOpcional.confirmação_senha = ERRO_CONFIRMAÇÃO_SENHA;
+    errosConfirmaçãoSenha.confirmação_senha = ERROR_MESSAGES.CONFIRMACAO_SENHA;
   }
-  return errosConfirmaçãoSenhaOpcional;
-};
+  return errosConfirmaçãoSenha;
+}
+
 export function validarConfirmaçãoSenhaOpcional(senha, confirmação_senha) {
   let errosConfirmaçãoSenhaOpcional = {};
   if (senha && confirmação_senha && senha !== confirmação_senha) {
-    errosConfirmaçãoSenhaOpcional.confirmaçãoSenha = ERRO_CONFIRMAÇÃO_SENHA;
+    errosConfirmaçãoSenhaOpcional.confirmaçãoSenha = ERROR_MESSAGES.CONFIRMACAO_SENHA;
   }
   return errosConfirmaçãoSenhaOpcional;
-};
+}
+
 export function validarCampoEmail(email) {
-  const FORMATO_EMAIL = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{3}(\.\w{2})?)$/;
+  // Improved email regex pattern that is more accurate
+  const FORMATO_EMAIL = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
   let erroEmail = {};
-  if (!email) erroEmail.email = ERRO_CAMPO_OBRIGATÓRIO;
-  else if (!FORMATO_EMAIL.test(email)) erroEmail.email = ERRO_FORMATO_INVÁLIDO;
+  
+  if (!email) {
+    erroEmail.email = ERROR_MESSAGES.CAMPO_OBRIGATORIO;
+  } else if (!FORMATO_EMAIL.test(email)) {
+    erroEmail.email = ERROR_MESSAGES.FORMATO_INVALIDO;
+  }
+  
   return erroEmail;
-};
+}
+
 export function validarRecuperaçãoAcessoOpcional(questão, resposta) {
   let errosRecuperaçãoAcessoOpcional = {};
-  if (resposta && !questão) errosRecuperaçãoAcessoOpcional.questão = ERRO_QUESTÃO;
+  if (resposta && !questão) {
+    errosRecuperaçãoAcessoOpcional.questão = ERROR_MESSAGES.QUESTAO_SEM_RESPOSTA;
+  }
   return errosRecuperaçãoAcessoOpcional;
-};
+}
+
 export function checarListaVazia(listaErros) {
-  return Object.keys(listaErros).length === 0
-};
+  return Object.keys(listaErros).length === 0;
+}
+
 export function MostrarMensagemErro({ mensagem }) {
-  if (mensagem) return <small className={estilizarErro()}>{mensagem}</small>;
-  else return null;
-};
+  if (mensagem) {
+    return <small className={estilizarErro()}>{mensagem}</small>;
+  }
+  return null;
+}
+
+/**
+ * Valida CPF com verificação de dígitos verificadores
+ */
 export function validarCpf(cpf) {
-  cpf = cpf.replace(/[^\d]/g,'');
-  if (cpf.length === 11) return true;
-  return false;
-};
+  // Remove caracteres não numéricos
+  cpf = cpf.replace(/[^\d]/g, '');
+  
+  // Verifica se tem 11 dígitos
+  if (cpf.length !== 11) {
+    return false;
+  }
+  
+  // Verifica se todos os dígitos são iguais (CPF inválido)
+  if (/^(\d)\1{10}$/.test(cpf)) {
+    return false;
+  }
+  
+  // Valida primeiro dígito verificador
+  let soma = 0;
+  for (let i = 0; i < 9; i++) {
+    soma += parseInt(cpf.charAt(i)) * (10 - i);
+  }
+  let resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) {
+    resto = 0;
+  }
+  if (resto !== parseInt(cpf.charAt(9))) {
+    return false;
+  }
+  
+  // Valida segundo dígito verificador
+  soma = 0;
+  for (let i = 0; i < 10; i++) {
+    soma += parseInt(cpf.charAt(i)) * (11 - i);
+  }
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) {
+    resto = 0;
+  }
+  if (resto !== parseInt(cpf.charAt(10))) {
+    return false;
+  }
+  
+  return true;
+}
